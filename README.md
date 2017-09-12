@@ -36,12 +36,9 @@ yarn add @ladjs/policies
 ## Usage
 
 ```js
-const @ladjs/policies = require('@ladjs/policies');
+const policies = require('@ladjs/policies');
 
-const @ladjs/policies = new @ladjs/policies();
-
-console.log(@ladjs/policies.renderName());
-// script
+policies({appName, Users})
 ```
 
 
