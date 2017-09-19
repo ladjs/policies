@@ -36,9 +36,11 @@ yarn add @ladjs/policies
 ## Usage
 
 ```js
-const policies = require('@ladjs/policies');
+const Policies = require('@ladjs/policies');
 
-policies({appName, Users})
+const policies = new Policies({ appName }, api_token => {
+  return Users.findOne({ api_token });
+});
 ```
 
 
