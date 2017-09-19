@@ -9,6 +9,7 @@
   },
   "contributors": ["Spencer Snyder <sasnyde2@gmail.com> ()"],
   "dependencies": {
+    "auto-bind": "^1.1.0",
     "basic-auth": "^1.1.0",
     "boom": "^5.2.0"
   },
