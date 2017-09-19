@@ -8,7 +8,7 @@ class Policies {
     if (typeof findByTokenFn !== 'function') {
       throw new TypeError('findByTokenFn must be defined an return a Promise');
     }
-    this.findByToken = findByTokenFn;
+    this.findByTokenFn = findByTokenFn;
     autoBind(this);
   }
 
@@ -45,7 +45,7 @@ class Policies {
         )
       );
 
-    const user = await this.findByToken(credentials.name);
+    const user = await this.findByTokenFn(credentials.name);
 
     if (!user)
       return ctx.throw(
