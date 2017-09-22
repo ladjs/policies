@@ -1,16 +1,20 @@
 {
   "name": "@ladjs/policies",
-  "description": "policies built for lad",
+  "description": "Policies helper for Lad",
   "version": "0.0.1",
-  "author": "Spencer Snyder <sasnyde2@gmail.com> ()",
+  "author": "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
   "bugs": {
     "url": "https://github.com/ladjs/policies/issues",
-    "email": "sasnyde2@gmail.com"
+    "email": "niftylettuce@gmail.com"
   },
-  "contributors": ["Spencer Snyder <sasnyde2@gmail.com> ()"],
+  "contributors": [
+    "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
+    "Spencer Snyder <sasnyde2@gmail.com> (http://spencersnyder.io/)",
+    "Pablo Varela <pablovarela182@gmail.com> (http://pablo.life)"
+  ],
   "dependencies": {
     "auto-bind": "^1.1.0",
-    "basic-auth": "^1.1.0",
+    "basic-auth": "^2.0.0",
     "boom": "^5.2.0"
   },
   "devDependencies": {

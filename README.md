@@ -7,7 +7,7 @@
 [![made with lass](https://img.shields.io/badge/made_with-lass-95CC28.svg)](https://lass.js.org)
 [![license](https://img.shields.io/github/license/ladjs/policies.svg)](<>)
 
-> policies built for lad
+> Policies helper for Lad
 
 
 ## Table of Contents
@@ -38,22 +38,24 @@ yarn add @ladjs/policies
 ```js
 const Policies = require('@ladjs/policies');
 
-const policies = new Policies({ appName }, api_token => {
-  return Users.findOne({ api_token });
-});
+const appName = 'My App Name';
+
+const policies = new Policies({ appName }, api_token => Users.findOne({ api_token }));
 ```
 
 
 ## Contributors
 
-| Name               |
-| ------------------ |
-| **Spencer Snyder** |
+| Name               | Website                    |
+| ------------------ | -------------------------- |
+| **Nick Baugh**     | <http://niftylettuce.com>  |
+| **Spencer Snyder** | <http://spencersnyder.io/> |
+| **Pablo Varela**   | <http://pablo.life>        |
 
 
 ## License
 
-[MIT](LICENSE) © Spencer Snyder
+[MIT](LICENSE) © [Nick Baugh](http://niftylettuce.com)
 
 
 ## 
