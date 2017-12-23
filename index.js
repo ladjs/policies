@@ -6,7 +6,7 @@ class Policies {
   constructor(config = {}, findByTokenFn) {
     this.config = Object.assign({}, config);
     if (typeof findByTokenFn !== 'function') {
-      throw new TypeError('findByTokenFn must be defined an return a Promise');
+      throw new TypeError('findByTokenFn must be defined and return a Promise');
     }
     this.findByTokenFn = findByTokenFn;
     autoBind(this);
