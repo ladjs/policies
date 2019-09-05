@@ -1,13 +1,14 @@
 const auth = require('basic-auth');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const autoBind = require('auto-bind');
 
 class Policies {
   constructor(config = {}, findByTokenFn) {
-    this.config = Object.assign({}, config);
+    this.config = { ...config };
     if (typeof findByTokenFn !== 'function') {
       throw new TypeError('findByTokenFn must be defined and return a Promise');
     }
+
     this.findByTokenFn = findByTokenFn;
     autoBind(this);
   }
@@ -22,7 +23,12 @@ class Policies {
     if (!ctx.isAuthenticated()) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
       if (!ctx.is('json'))
-        ctx.flash('warning', ctx.translate('LOGIN_REQUIRED'));
+        ctx.flash(
+          'warning',
+          ctx.translate
+            ? ctx.translate('LOGIN_REQUIRED')
+            : 'Please log in to view the page you requested.'
+        );
       ctx.redirect('/login');
       return;
     }
@@ -40,7 +46,9 @@ class Policies {
     )
       return ctx.throw(
         Boom.unauthorized(
-          ctx.translate('INVALID_API_CREDENTIALS'),
+          ctx.translate
+            ? ctx.translate('INVALID_API_CREDENTIALS')
+            : 'Invalid API credentials.',
           this.config.appName
         )
       );
@@ -50,7 +58,9 @@ class Policies {
     if (!user)
       return ctx.throw(
         Boom.unauthorized(
-          ctx.translate('INVALID_API_TOKEN'),
+          ctx.translate
+            ? ctx.translate('INVALID_API_TOKEN')
+            : 'Invalid API token.',
           this.config.appName
         )
       );
@@ -67,7 +77,13 @@ class Policies {
 
   async ensureAdmin(ctx, next) {
     if (!ctx.isAuthenticated() || ctx.state.user.group !== 'admin')
-      return ctx.throw(Boom.unauthorized(ctx.translate('IS_NOT_ADMIN')));
+      return ctx.throw(
+        Boom.unauthorized(
+          ctx.translate
+            ? ctx.translate('IS_NOT_ADMIN')
+            : 'You do not belong to the administrative user group.'
+        )
+      );
     await next();
   }
 }
