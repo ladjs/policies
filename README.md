@@ -14,6 +14,7 @@
 
 * [Install](#install)
 * [Usage](#usage)
+* [Options](#options)
 * [Contributors](#contributors)
 * [License](#license)
 
@@ -42,6 +43,16 @@ const appName = 'My App Name';
 
 const policies = new Policies({ appName }, api_token => Users.findOne({ api_token }));
 ```
+
+
+## Options
+
+See [index.js](index.js) for full usage and methods, but at a glance here are the default options:
+
+* `hasVerifiedEmail` (String) - defaults to `has_verified_email` and is the name of the Boolean field on the user object to denote whether or not a user has verified their email address.  Set this to `false`, `null`, `undefined`, or an empty string if you wish to disable this feature.  If a user does not have a verified email address, then they will be redirected to the `verifyRoute` and flashed a message.
+* `verifyRoute` (String) - defaults to `/verify` and is the route a user will be redirected to verify their email address
+* `loginRoute` (String) - defaults to `/login` and is the route a user will be redirected to if they need to log in
+* `schemeName` (String) - defaults to `null`, but if set as a String it will be used for 401 Unauthorized error scheme name via `Boom.unauthorized(message, schemeName)` internally
 
 
 ## Contributors

@@ -1,19 +1,57 @@
 const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
-const autoBind = require('auto-bind');
 
 class Policies {
-  constructor(config = {}, findByTokenFn) {
-    this.config = { ...config };
-    if (typeof findByTokenFn !== 'function') {
-      throw new TypeError('findByTokenFn must be defined and return a Promise');
-    }
+  constructor(config, findByTokenFn) {
+    this.config = {
+      hasVerifiedEmail: 'has_verified_email',
+      verifyRoute: '/verify',
+      loginRoute: '/login',
+      schemeName: null,
+      ...config
+    };
 
+    if (typeof findByTokenFn !== 'function')
+      throw new TypeError('findByTokenFn must be defined and return a Promise');
+
+    // bind the function to this instance
     this.findByTokenFn = findByTokenFn;
-    autoBind(this);
+
+    // bind this
+    this.checkVerifiedEmail = this.checkVerifiedEmail.bind(this);
+    this.ensureLoggedIn = this.ensureLoggedIn.bind(this);
+    this.ensureApiToken = this.ensureApiToken.bind(this);
+    this.ensureLoggedOut = this.ensureLoggedOut.bind(this);
+    this.ensureAdmin = this.ensureAdmin.bind(this);
   }
 
-  ensureLoggedIn(ctx, next) {
+  async checkVerifiedEmail(ctx, next) {
+    if (!ctx.isAuthenticated())
+      return ctx.throw(
+        Boom.unauthorized(
+          ctx.translate
+            ? ctx.translate('LOGIN_REQUIRED')
+            : 'Please log in to view the page you requested.'
+        )
+      );
+
+    if (!this.config.hasVerifiedEmail) return next();
+
+    if (ctx.state.user[this.config.hasVerifiedEmail]) return next();
+
+    ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
+    const message = ctx.translate
+      ? ctx.translate('EMAIL_VERIFICATION_REQUIRED')
+      : 'Please verify your email address to continue.';
+    if (ctx.is('json')) {
+      ctx.throw(Boom.unauthorized(message));
+    } else {
+      if (ctx.flash) ctx.flash('warning', message);
+      ctx.redirect(this.config.verifyRoute);
+    }
+  }
+
+  async ensureLoggedIn(ctx, next) {
     // a more simpler version that is adapted from
     // `koa-ensure-login` to use async/await
     // (this is adapted = require(the original `connect-ensure-login`)
@@ -22,18 +60,21 @@ class Policies {
 
     if (!ctx.isAuthenticated()) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
-      if (!ctx.is('json'))
-        ctx.flash(
-          'warning',
-          ctx.translate
-            ? ctx.translate('LOGIN_REQUIRED')
-            : 'Please log in to view the page you requested.'
-        );
-      ctx.redirect('/login');
+      const message = ctx.translate
+        ? ctx.translate('LOGIN_REQUIRED')
+        : 'Please log in to view the page you requested.';
+      if (ctx.is('json')) {
+        ctx.throw(Boom.unauthorized(message));
+      } else {
+        if (ctx.flash) ctx.flash('warning', message);
+        ctx.redirect(this.config.loginRoute);
+      }
+
       return;
     }
 
-    return next();
+    // check if the user has a verified email
+    return this.checkVerifiedEmail(ctx, next);
   }
 
   async ensureApiToken(ctx, next) {
@@ -49,7 +90,7 @@ class Policies {
           ctx.translate
             ? ctx.translate('INVALID_API_CREDENTIALS')
             : 'Invalid API credentials.',
-          this.config.appName
+          this.config.schemeName
         )
       );
 
@@ -61,18 +102,19 @@ class Policies {
           ctx.translate
             ? ctx.translate('INVALID_API_TOKEN')
             : 'Invalid API token.',
-          this.config.appName
+          this.config.schemeName
         )
       );
 
     await ctx.login(user, { session: false });
 
-    return next();
+    // check if the user has a verified email
+    return this.checkVerifiedEmail(ctx, next);
   }
 
   async ensureLoggedOut(ctx, next) {
     if (ctx.isAuthenticated()) return ctx.redirect('/');
-    await next();
+    return next();
   }
 
   async ensureAdmin(ctx, next) {
@@ -84,7 +126,8 @@ class Policies {
             : 'You do not belong to the administrative user group.'
         )
       );
-    await next();
+    // check if the user has a verified email
+    return this.checkVerifiedEmail(ctx, next);
   }
 }
 
