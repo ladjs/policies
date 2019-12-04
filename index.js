@@ -26,29 +26,35 @@ class Policies {
   }
 
   async checkVerifiedEmail(ctx, next) {
-    if (!ctx.isAuthenticated())
-      return ctx.throw(
-        Boom.unauthorized(
-          ctx.translate
-            ? ctx.translate('LOGIN_REQUIRED')
-            : 'Please log in to view the page you requested.'
-        )
-      );
+    if (!ctx.isAuthenticated()) {
+      ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
+      const message = ctx.translate
+        ? ctx.translate('LOGIN_REQUIRED')
+        : 'Please log in to view the page you requested.';
+
+      if (ctx.api) return ctx.throw(Boom.unauthorized(message));
+
+      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+
+      ctx.redirect(this.config.loginRoute);
+      return;
+    }
 
     if (!this.config.hasVerifiedEmail) return next();
 
     if (ctx.state.user[this.config.hasVerifiedEmail]) return next();
 
     ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
+
     const message = ctx.translate
       ? ctx.translate('EMAIL_VERIFICATION_REQUIRED')
       : 'Please verify your email address to continue.';
-    if (ctx.is('json')) {
-      ctx.throw(Boom.unauthorized(message));
-    } else {
-      if (ctx.flash) ctx.flash('warning', message);
-      ctx.redirect(this.config.verifyRoute);
-    }
+
+    if (ctx.api) return ctx.throw(Boom.unauthorized(message));
+
+    if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+
+    ctx.redirect(this.config.verifyRoute);
   }
 
   async ensureLoggedIn(ctx, next) {
@@ -57,19 +63,17 @@ class Policies {
     // (this is adapted = require(the original `connect-ensure-login`)
     // <https://github.com/RobinQu/koa-ensure-login>
     // <https://github.com/jaredhanson/connect-ensure-login>
-
     if (!ctx.isAuthenticated()) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
       const message = ctx.translate
         ? ctx.translate('LOGIN_REQUIRED')
         : 'Please log in to view the page you requested.';
-      if (ctx.is('json')) {
-        ctx.throw(Boom.unauthorized(message));
-      } else {
-        if (ctx.flash) ctx.flash('warning', message);
-        ctx.redirect(this.config.loginRoute);
-      }
 
+      if (ctx.api) return ctx.throw(Boom.unauthorized(message));
+
+      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+
+      ctx.redirect(this.config.loginRoute);
       return;
     }
 
@@ -113,7 +117,20 @@ class Policies {
   }
 
   async ensureLoggedOut(ctx, next) {
-    if (ctx.isAuthenticated()) return ctx.redirect('/');
+    if (ctx.isAuthenticated()) {
+      ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
+      const message = ctx.translate
+        ? ctx.translate('LOGOUT_REQUIRED')
+        : 'Please log out to view the page you requested.';
+
+      if (ctx.api) return ctx.throw(Boom.unauthorized(message));
+
+      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+
+      ctx.redirect('back');
+      return;
+    }
+
     return next();
   }
 
