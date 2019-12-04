@@ -54,6 +54,9 @@ class Policies {
 
     if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
 
+    if (ctx.method === 'GET' && ctx.path === this.config.verifyRoute)
+      return next();
+
     ctx.redirect(this.config.verifyRoute);
   }
 
