@@ -44,8 +44,6 @@ class Policies {
 
     if (ctx.state.user[this.config.hasVerifiedEmail]) return next();
 
-    ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
-
     const message = ctx.translate
       ? ctx.translate('EMAIL_VERIFICATION_REQUIRED')
       : 'Please verify your email address to continue.';
@@ -57,7 +55,9 @@ class Policies {
     if (ctx.method === 'GET' && ctx.path === this.config.verifyRoute)
       return next();
 
-    ctx.redirect(this.config.verifyRoute);
+    ctx.redirect(
+      `${this.config.verifyRoute}?redirect_to=${ctx.originalUrl || ctx.req.url}`
+    );
   }
 
   async ensureLoggedIn(ctx, next) {
