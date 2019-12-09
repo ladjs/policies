@@ -6,6 +6,7 @@ class Policies {
     this.config = {
       hasVerifiedEmail: 'has_verified_email',
       verifyRoute: '/verify',
+      verifyRouteHasLocale: true,
       loginRoute: '/login',
       schemeName: null,
       ...config
@@ -52,12 +53,18 @@ class Policies {
 
     if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
 
-    if (ctx.method === 'GET' && ctx.path === this.config.verifyRoute)
+    if (
+      ctx.method === 'GET' &&
+      (typeof ctx.pathWithoutLocale === 'string'
+        ? ctx.pathWithoutLocale === this.config.verifyRoute
+        : ctx.path === this.config.verifyRoute)
+    )
       return next();
 
-    ctx.redirect(
-      `${this.config.verifyRoute}?redirect_to=${ctx.originalUrl || ctx.req.url}`
-    );
+    const redirect = `?redirect_to=${ctx.originalUrl || ctx.req.url}`;
+    if (typeof ctx.state.l === 'function' && this.config.verifyRouteHasLocale)
+      ctx.redirect(`${ctx.state.l(this.config.verifyRoute)}${redirect}`);
+    else ctx.redirect(`${this.config.verifyRoute}${redirect}`);
   }
 
   async ensureLoggedIn(ctx, next) {
