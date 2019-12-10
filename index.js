@@ -52,6 +52,13 @@ class Policies {
 
     if (ctx.state.user[this.config.hasVerifiedEmail]) return next();
 
+    if (
+      typeof ctx.pathWithoutLocale === 'string'
+        ? ctx.pathWithoutLocale === this.config.verifyRoute
+        : ctx.path === this.config.verifyRoute
+    )
+      return next();
+
     const message = ctx.translate
       ? ctx.translate('EMAIL_VERIFICATION_REQUIRED')
       : 'Please verify your email address to continue.';
@@ -59,13 +66,6 @@ class Policies {
     if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
     if (hasFlashAndIsNotXHR(ctx)) ctx.flash('warning', message);
-
-    if (
-      typeof ctx.pathWithoutLocale === 'string'
-        ? ctx.pathWithoutLocale === this.config.verifyRoute
-        : ctx.path === this.config.verifyRoute
-    )
-      return next();
 
     const redirect = `?redirect_to=${ctx.originalUrl || ctx.req.url}`;
     if (typeof ctx.state.l === 'function' && this.config.verifyRouteHasLocale)
