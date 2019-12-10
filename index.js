@@ -1,6 +1,13 @@
 const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
 
+function hasFlashAndIsNotXHR(ctx) {
+  return (
+    typeof ctx.flash === 'function' &&
+    ctx.request.get('X-Requested-With') !== 'XMLHttpRequest'
+  );
+}
+
 class Policies {
   constructor(config, findByTokenFn) {
     this.config = {
@@ -35,7 +42,7 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+      if (hasFlashAndIsNotXHR(ctx)) ctx.flash('warning', message);
 
       ctx.redirect(this.config.loginRoute);
       return;
@@ -51,13 +58,12 @@ class Policies {
 
     if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-    if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+    if (hasFlashAndIsNotXHR(ctx)) ctx.flash('warning', message);
 
     if (
-      ctx.method === 'GET' &&
-      (typeof ctx.pathWithoutLocale === 'string'
+      typeof ctx.pathWithoutLocale === 'string'
         ? ctx.pathWithoutLocale === this.config.verifyRoute
-        : ctx.path === this.config.verifyRoute)
+        : ctx.path === this.config.verifyRoute
     )
       return next();
 
@@ -81,7 +87,7 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+      if (hasFlashAndIsNotXHR(ctx)) ctx.flash('warning', message);
 
       ctx.redirect(this.config.loginRoute);
       return;
@@ -135,7 +141,7 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (!ctx.is('json') && ctx.flash) ctx.flash('warning', message);
+      if (hasFlashAndIsNotXHR(ctx)) ctx.flash('warning', message);
 
       ctx.redirect('back');
       return;
