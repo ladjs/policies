@@ -1,7 +1,7 @@
 {
   "name": "@ladjs/policies",
   "description": "Policies helper for Lad",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
   "bugs": {
     "url": "https://github.com/ladjs/policies/issues",
