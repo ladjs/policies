@@ -77,14 +77,11 @@ class Policies {
       (ctx.state.user[this.config.twoFactorEnabled] && !ctx.session.otp)
     ) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
-      if (!ctx.is('json'))
-        ctx.flash(
-          'warning',
-          ctx.translate
-            ? ctx.translate('TWO_FACTOR_REQUIRED')
-            : 'Please log in with two factor authentication' +
-                ' to view the page you requested.'
-        );
+      const message = ctx.translate
+        ? ctx.translate('TWO_FACTOR_REQUIRED')
+        : 'Please log in with two factor authentication ' +
+          'to view the page you requested.';
+      if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
       ctx.redirect('/login-otp');
       return;
     }
