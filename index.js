@@ -8,12 +8,12 @@ function hasFlashAndAcceptsHTML(ctx) {
 class Policies {
   constructor(config, findByTokenFn) {
     this.config = {
-      hasVerifiedEmail: 'has_verified_email',
       verifyRoute: '/verify',
       verifyRouteHasLocale: true,
       loginRoute: '/login',
       schemeName: null,
       userFields: {
+        hasVerifiedEmail: 'has_verified_email',
         twoFactorEnabled: 'two_factor_enabled'
       },
       ...config
@@ -49,9 +49,9 @@ class Policies {
       return;
     }
 
-    if (!this.config.hasVerifiedEmail) return next();
+    if (!this.config.userFields.hasVerifiedEmail) return next();
 
-    if (ctx.state.user[this.config.hasVerifiedEmail]) return next();
+    if (ctx.state.user[this.config.userFields.hasVerifiedEmail]) return next();
 
     if (
       typeof ctx.pathWithoutLocale === 'string'
