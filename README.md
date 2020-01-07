@@ -63,6 +63,7 @@ See [index.js](index.js) for full usage and methods, but at a glance here are th
 | **Nick Baugh**     | <http://niftylettuce.com>  |
 | **Spencer Snyder** | <http://spencersnyder.io/> |
 | **Pablo Varela**   | <http://pablo.life>        |
+| **Shaun Warman**   | <https://shaunwarman.com/> |
 
 
 ## License

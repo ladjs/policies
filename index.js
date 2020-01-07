@@ -13,6 +13,9 @@ class Policies {
       verifyRouteHasLocale: true,
       loginRoute: '/login',
       schemeName: null,
+      userFields: {
+        twoFactorEnabled: 'two_factor_enabled'
+      },
       ...config
     };
 
@@ -28,6 +31,7 @@ class Policies {
     this.ensureApiToken = this.ensureApiToken.bind(this);
     this.ensureLoggedOut = this.ensureLoggedOut.bind(this);
     this.ensureAdmin = this.ensureAdmin.bind(this);
+    this.ensureOtp = this.ensureOtp.bind(this);
   }
 
   async checkVerifiedEmail(ctx, next) {
@@ -68,6 +72,24 @@ class Policies {
     if (typeof ctx.state.l === 'function' && this.config.verifyRouteHasLocale)
       ctx.redirect(`${ctx.state.l(this.config.verifyRoute)}${redirect}`);
     else ctx.redirect(`${this.config.verifyRoute}${redirect}`);
+  }
+
+  async ensureOtp(ctx, next) {
+    if (
+      !ctx.isAuthenticated() ||
+      (ctx.state.user[this.config.userFields.twoFactorEnabled] &&
+        !ctx.session.otp)
+    ) {
+      ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
+      const message = ctx.translate
+        ? ctx.translate('TWO_FACTOR_REQUIRED')
+        : 'Please log in with two factor authentication to view the page you requested.';
+      if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
+      ctx.redirect('/login-otp');
+      return;
+    }
+
+    return next();
   }
 
   async ensureLoggedIn(ctx, next) {

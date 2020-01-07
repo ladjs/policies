@@ -10,23 +10,22 @@
   "contributors": [
     "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
     "Spencer Snyder <sasnyde2@gmail.com> (http://spencersnyder.io/)",
-    "Pablo Varela <pablovarela182@gmail.com> (http://pablo.life)"
+    "Pablo Varela <pablovarela182@gmail.com> (http://pablo.life)",
+    "Shaun Warman <shaunwarman1@gmail.com> (https://shaunwarman.com/)"
   ],
   "dependencies": {
-    "@hapi/boom": "^8.0.1",
+    "@hapi/boom": "^9.0.0",
     "basic-auth": "^2.0.1"
   },
   "devDependencies": {
     "ava": "^2.4.0",
     "codecov": "^3.6.1",
     "cross-env": "^6.0.3",
-    "eslint": "^6.7.2",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "husky": "^3.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-xo-lass": "^1.0.3",
+    "husky": "3.x",
     "lint-staged": "^9.5.0",
-    "nyc": "^14.1.1",
-    "prettier": "^1.19.1",
+    "nyc": "^15.0.0",
     "remark-cli": "^7.0.1",
     "remark-preset-github": "^0.0.16",
     "xo": "^0.25.3"
@@ -35,21 +34,17 @@
     "node": ">=8.3"
   },
   "homepage": "https://github.com/ladjs/policies",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm test",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "keywords": [
     "@ladjs/policies",
     "lass"
   ],
   "license": "MIT",
-  "lint-staged": {
-    "*.{js,jsx,mjs,ts,tsx,css,less,scss,json,graphql}": [
-      "prettier --write --single-quote --trailing-comma none",
-      "git add"
-    ],
-    "*.md": [
-      "remark . -qfo",
-      "git add"
-    ]
-  },
   "main": "index.js",
   "nyc": {
     "check-coverage": true,
@@ -61,6 +56,11 @@
       "html",
       "text"
     ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "trailingComma": "none"
   },
   "remarkConfig": {
     "plugins": [
@@ -79,33 +79,10 @@
     "test-coverage": "cross-env NODE_ENV=test nyc ava"
   },
   "xo": {
-    "extends": "prettier",
-    "plugins": [
-      "prettier"
-    ],
-    "parserOptions": {
-      "sourceType": "script"
-    },
-    "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "singleQuote": true,
-          "bracketSpacing": true,
-          "trailingComma": "none"
-        }
-      ],
-      "max-len": [
-        "error",
-        {
-          "code": 80,
-          "ignoreUrls": true
-        }
-      ],
-      "capitalized-comments": "off",
-      "camelcase": "off",
-      "no-warning-comments": "off"
-    },
-    "space": true
+    "prettier": true,
+    "space": true,
+    "extends": [
+      "xo-lass"
+    ]
   }
 }
