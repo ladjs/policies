@@ -7,6 +7,11 @@
     "url": "https://github.com/ladjs/policies/issues",
     "email": "niftylettuce@gmail.com"
   },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
   "contributors": [
     "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
     "Spencer Snyder <sasnyde2@gmail.com> (http://spencersnyder.io/)",
@@ -18,6 +23,8 @@
     "basic-auth": "^2.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.4",
+    "@commitlint/config-conventional": "^8.3.4",
     "ava": "^2.4.0",
     "codecov": "^3.6.1",
     "cross-env": "^6.0.3",
