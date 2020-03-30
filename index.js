@@ -85,7 +85,7 @@ class Policies {
         ? ctx.translate('TWO_FACTOR_REQUIRED')
         : 'Please log in with two-factor authentication to view the page you requested.';
       if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
-      ctx.redirect('/login-otp');
+      ctx.redirect(this.config.loginOtpRoute);
       return;
     }
 
