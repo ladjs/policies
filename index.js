@@ -11,6 +11,7 @@ class Policies {
       verifyRoute: '/verify',
       verifyRouteHasLocale: true,
       loginRoute: '/login',
+      loginOtpRoute: '/2fa/otp/login',
       schemeName: null,
       userFields: {
         hasVerifiedEmail: 'has_verified_email',
