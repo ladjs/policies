@@ -76,6 +76,8 @@ class Policies {
   }
 
   async ensureOtp(ctx, next) {
+    if (!process.env.AUTH_OTP_ENABLED) return next();
+
     if (
       !ctx.isAuthenticated() ||
       (ctx.state.user[this.config.userFields.twoFactorEnabled] &&
