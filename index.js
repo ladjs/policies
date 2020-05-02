@@ -11,11 +11,13 @@ class Policies {
       verifyRoute: '/verify',
       verifyRouteHasLocale: true,
       loginRoute: '/login',
-      loginOtpRoute: '/2fa/otp/login',
+      loginOtpRoute: '/otp/login',
       schemeName: null,
+      passport: {
+        otpEnabled: 'otp_enabled'
+      },
       userFields: {
-        hasVerifiedEmail: 'has_verified_email',
-        twoFactorEnabled: 'two_factor_enabled'
+        hasVerifiedEmail: 'has_verified_email'
       },
       ...config
     };
@@ -80,7 +82,7 @@ class Policies {
 
     if (
       !ctx.isAuthenticated() ||
-      (ctx.state.user[this.config.userFields.twoFactorEnabled] &&
+      (ctx.state.user[this.config.passport.fields.otpEnabled] &&
         !ctx.session.otp)
     ) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
