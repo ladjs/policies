@@ -9,7 +9,6 @@ class Policies {
   constructor(config, findByTokenFn) {
     this.config = {
       verifyRoute: '/verify',
-      verifyRouteHasLocale: true,
       loginRoute: '/login',
       loginOtpRoute: '/otp/login',
       schemeName: null,
@@ -48,7 +47,11 @@ class Policies {
 
       if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
 
-      ctx.redirect(this.config.loginRoute);
+      ctx.redirect(
+        typeof ctx.state.l === 'function'
+          ? ctx.state.l(this.config.loginRoute)
+          : this.config.loginRoute
+      );
       return;
     }
 
@@ -71,10 +74,12 @@ class Policies {
 
     if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
 
-    const redirect = `?redirect_to=${ctx.originalUrl || ctx.req.url}`;
-    if (typeof ctx.state.l === 'function' && this.config.verifyRouteHasLocale)
-      ctx.redirect(`${ctx.state.l(this.config.verifyRoute)}${redirect}`);
-    else ctx.redirect(`${this.config.verifyRoute}${redirect}`);
+    const redirect = `${
+      this.config.verifyRoute
+    }?redirect_to=${ctx.originalUrl || ctx.req.url}`;
+    ctx.redirect(
+      typeof ctx.state.l === 'function' ? ctx.state.l(redirect) : redirect
+    );
   }
 
   async ensureOtp(ctx, next) {
@@ -90,7 +95,11 @@ class Policies {
         ? ctx.translate('TWO_FACTOR_REQUIRED')
         : 'Please log in with two-factor authentication to view the page you requested.';
       if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
-      ctx.redirect(this.config.loginOtpRoute);
+      ctx.redirect(
+        typeof ctx.state.l === 'function'
+          ? ctx.state.l(this.config.loginOtpRoute)
+          : this.config.loginOtpRoute
+      );
       return;
     }
 
@@ -113,7 +122,11 @@ class Policies {
 
       if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
 
-      ctx.redirect(this.config.loginRoute);
+      ctx.redirect(
+        typeof ctx.state.l === 'function'
+          ? ctx.state.l(this.config.loginRoute)
+          : this.config.loginRoute
+      );
       return;
     }
 
