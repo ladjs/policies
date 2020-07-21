@@ -16,7 +16,8 @@
     "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com)",
     "Spencer Snyder <sasnyde2@gmail.com> (http://spencersnyder.io/)",
     "Pablo Varela <pablovarela182@gmail.com> (http://pablo.life)",
-    "Shaun Warman <shaunwarman1@gmail.com> (https://shaunwarman.com/)"
+    "Shaun Warman <shaunwarman1@gmail.com> (https://shaunwarman.com/)",
+    "shadowgate15 (https://github.com/shadowgate15)"
   ],
   "dependencies": {
     "@hapi/boom": "^9.1.0",

@@ -52,12 +52,13 @@ See [index.js](index.js) for options and defaults.
 
 ## Contributors
 
-| Name               | Website                    |
-| ------------------ | -------------------------- |
-| **Nick Baugh**     | <http://niftylettuce.com>  |
-| **Spencer Snyder** | <http://spencersnyder.io/> |
-| **Pablo Varela**   | <http://pablo.life>        |
-| **Shaun Warman**   | <https://shaunwarman.com/> |
+| Name               | Website                           |
+| ------------------ | --------------------------------- |
+| **Nick Baugh**     | <http://niftylettuce.com>         |
+| **Spencer Snyder** | <http://spencersnyder.io/>        |
+| **Pablo Varela**   | <http://pablo.life>               |
+| **Shaun Warman**   | <https://shaunwarman.com/>        |
+| **shadowgate15**   | <https://github.com/shadowgate15> |
 
 
 ## License
