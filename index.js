@@ -13,7 +13,9 @@ class Policies {
       loginOtpRoute: '/otp/login',
       schemeName: null,
       passport: {
-        otpEnabled: 'otp_enabled'
+        fields: {
+          otpEnabled: 'otp_enabled'
+        }
       },
       userFields: {
         hasVerifiedEmail: 'has_verified_email'
