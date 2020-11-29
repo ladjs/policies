@@ -208,7 +208,7 @@ class Policies {
     if (this.config.hcaptchaEnabled === false || ctx.isAuthenticated())
       return next();
 
-    if (!ctx.body['h-captcha-response'])
+    if (!ctx.request.body['h-captcha-response'])
       ctx.throw(
         Boom.unauthorized(
           ctx.translate
@@ -219,7 +219,7 @@ class Policies {
 
     try {
       const { hcaptchaSecretKey } = this.config;
-      const { token } = ctx.body['h-captcha-response'];
+      const token = ctx.body['h-captcha-response'];
       const verification = await verify(hcaptchaSecretKey, { response: token });
       if (verification.success !== 'true')
         ctx.throw(
