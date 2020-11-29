@@ -219,9 +219,9 @@ class Policies {
 
     try {
       const { hcaptchaSecretKey } = this.config;
-      const token = ctx.body['h-captcha-response'];
-      const verification = await verify(hcaptchaSecretKey, { response: token });
-      if (verification.success !== 'true')
+      const token = ctx.request.body['h-captcha-response'];
+      const verification = await verify(hcaptchaSecretKey, token);
+      if (verification.success !== true)
         ctx.throw(
           Boom.unauthorized(
             ctx.translate
