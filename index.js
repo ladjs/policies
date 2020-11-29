@@ -1,5 +1,6 @@
 const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
+const { verify } = require('hcaptcha');
 
 function hasFlashAndAcceptsHTML(ctx) {
   return typeof ctx.flash === 'function' && ctx.accepts('html');
@@ -36,6 +37,7 @@ class Policies {
     this.ensureLoggedOut = this.ensureLoggedOut.bind(this);
     this.ensureAdmin = this.ensureAdmin.bind(this);
     this.ensureOtp = this.ensureOtp.bind(this);
+    this.ensureCaptcha = this.ensureCaptcha.bind(this);
   }
 
   async checkVerifiedEmail(ctx, next) {
@@ -200,6 +202,45 @@ class Policies {
       );
     // check if the user has a verified email
     return this.checkVerifiedEmail(ctx, next);
+  }
+
+  async ensureCaptcha(ctx, next) {
+    if (this.config.hcaptchaEnabled === false || ctx.isAuthenticated())
+      return next();
+
+    if (!ctx.body['h-captcha-response'])
+      ctx.throw(
+        Boom.unauthorized(
+          ctx.translate
+            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
+            : 'Captcha not verified.'
+        )
+      );
+
+    try {
+      const { hcaptchaSecretKey } = this.config;
+      const { token } = ctx.body['h-captcha-response'];
+      const verification = await verify(hcaptchaSecretKey, { response: token });
+      if (verification.success !== 'true')
+        ctx.throw(
+          Boom.unauthorized(
+            ctx.translate
+              ? ctx.translate('CAPTCHA_NOT_VERIFIED')
+              : 'Captcha not verified.'
+          )
+        );
+
+      return next();
+    } catch (err) {
+      ctx.logger.error(err);
+      ctx.throw(
+        Boom.badImplementation(
+          ctx.translate
+            ? ctx.translate('CAPTCHA_SERVICE_ERROR')
+            : 'Captcha service error.'
+        )
+      );
+    }
   }
 }
 
