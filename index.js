@@ -210,7 +210,7 @@ class Policies {
 
     if (!ctx.request.body['h-captcha-response'])
       ctx.throw(
-        Boom.unauthorized(
+        Boom.badRequest(
           ctx.translate
             ? ctx.translate('CAPTCHA_NOT_VERIFIED')
             : 'Captcha not verified.'
@@ -224,7 +224,7 @@ class Policies {
       // https://docs.hcaptcha.com/#server
       ctx.logger.error(`Captcha service error: ${verification['error-codes']}`);
       ctx.throw(
-        Boom.unauthorized(
+        Boom.badRequest(
           ctx.translate
             ? ctx.translate('CAPTCHA_NOT_VERIFIED')
             : 'Captcha not verified.'
