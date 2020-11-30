@@ -217,30 +217,22 @@ class Policies {
         )
       );
 
-    try {
-      const { hcaptchaSecretKey } = this.config;
-      const token = ctx.request.body['h-captcha-response'];
-      const verification = await verify(hcaptchaSecretKey, token);
-      if (verification.success !== true)
-        ctx.throw(
-          Boom.unauthorized(
-            ctx.translate
-              ? ctx.translate('CAPTCHA_NOT_VERIFIED')
-              : 'Captcha not verified.'
-          )
-        );
-
-      return next();
-    } catch (err) {
-      ctx.logger.error(err);
+    const { hcaptchaSecretKey } = this.config;
+    const token = ctx.request.body['h-captcha-response'];
+    const verification = await verify(hcaptchaSecretKey, token);
+    if (verification.success !== true) {
+      // https://docs.hcaptcha.com/#server
+      ctx.logger.error(`Captcha service error: ${verification['error-codes']}`);
       ctx.throw(
-        Boom.badImplementation(
+        Boom.unauthorized(
           ctx.translate
-            ? ctx.translate('CAPTCHA_SERVICE_ERROR')
-            : 'Captcha service error.'
+            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
+            : 'Captcha not verified.'
         )
       );
     }
+
+    return next();
   }
 }
 
