@@ -2,27 +2,27 @@ const test = require('ava');
 
 const Policies = require('..');
 
-test.beforeEach(t => {
+test.beforeEach((t) => {
   t.context.policies = new Policies({}, () => {});
-  t.context.redirect = function(url) {
+  t.context.redirect = function (url) {
     this.url = url;
   };
 });
 
-test('creates Policies', t => {
+test('creates Policies', (t) => {
   const { policies } = t.context;
 
   t.is(typeof policies, 'object');
 });
 
-test('throws TypeError if findByTokenFn is not a function', t => {
+test('throws TypeError if findByTokenFn is not a function', (t) => {
   t.throws(() => new Policies({}), {
     instanceOf: TypeError,
     message: 'findByTokenFn must be defined and return a Promise'
   });
 });
 
-test('checkVerifiedEmail > returns redirect if not authenticated', async t => {
+test('checkVerifiedEmail > returns redirect if not authenticated', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -39,7 +39,7 @@ test('checkVerifiedEmail > returns redirect if not authenticated', async t => {
   t.is(ctx.session.returnTo, 'test');
 });
 
-test('checkVerifiedEmail > returns redirect if authenticated', async t => {
+test('checkVerifiedEmail > returns redirect if authenticated', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -56,7 +56,7 @@ test('checkVerifiedEmail > returns redirect if authenticated', async t => {
   t.is(ctx.url, '/verify?redirect_to=test');
 });
 
-test('checkVerifiedEmail > passes through if path is verifyRoute', async t => {
+test('checkVerifiedEmail > passes through if path is verifyRoute', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -72,23 +72,23 @@ test('checkVerifiedEmail > passes through if path is verifyRoute', async t => {
   });
 });
 
-test('checkVerifiedEmail > returns redirect with req.url and flashes', async t => {
+test('checkVerifiedEmail > returns redirect with req.url and flashes', async (t) => {
   const { policies, redirect } = t.context;
 
-  const flash = function(_, message) {
+  const flash = function (_, message) {
     this.flashMessage = message;
   };
 
   const ctx = {
     isAuthenticated: () => false,
     state: {
-      l: message => message
+      l: (message) => message
     },
     session: {},
     req: {
       url: 'test'
     },
-    translate: message => message,
+    translate: (message) => message,
     redirect,
     flash,
     accepts: () => true
@@ -101,7 +101,7 @@ test('checkVerifiedEmail > returns redirect with req.url and flashes', async t =
   t.is(ctx.flashMessage, 'LOGIN_REQUIRED');
 });
 
-test('checkVerifiedEmail > errors when not authenticated and api', async t => {
+test('checkVerifiedEmail > errors when not authenticated and api', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -111,7 +111,7 @@ test('checkVerifiedEmail > errors when not authenticated and api', async t => {
     originalUrl: 'test',
     redirect,
     api: true,
-    throw: err => {
+    throw: (err) => {
       throw err;
     }
   };
@@ -121,7 +121,7 @@ test('checkVerifiedEmail > errors when not authenticated and api', async t => {
   });
 });
 
-test('checkVerifiedEmail > passes through if no hasVerifiedEmail field', async t => {
+test('checkVerifiedEmail > passes through if no hasVerifiedEmail field', async (t) => {
   const { policies } = t.context;
 
   policies.config.userFields.hasVerifiedEmail = undefined;
@@ -133,7 +133,7 @@ test('checkVerifiedEmail > passes through if no hasVerifiedEmail field', async t
   });
 });
 
-test('checkVerifiedEmail > passes through if email has been verified', async t => {
+test('checkVerifiedEmail > passes through if email has been verified', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -150,7 +150,7 @@ test('checkVerifiedEmail > passes through if email has been verified', async t =
   });
 });
 
-test('checkVerifiedEmail > passes through if pathWithoutLocale is verifyRoute', async t => {
+test('checkVerifiedEmail > passes through if pathWithoutLocale is verifyRoute', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -166,17 +166,17 @@ test('checkVerifiedEmail > passes through if pathWithoutLocale is verifyRoute', 
   });
 });
 
-test('checkVerifiedEmail > returns redirect if authenticated and flashes', async t => {
+test('checkVerifiedEmail > returns redirect if authenticated and flashes', async (t) => {
   const { policies, redirect } = t.context;
 
-  const flash = function(_, message) {
+  const flash = function (_, message) {
     this.flashMessage = message;
   };
 
   const ctx = {
     isAuthenticated: () => true,
     state: {
-      l: message => message,
+      l: (message) => message,
       user: {}
     },
     req: {
@@ -192,7 +192,7 @@ test('checkVerifiedEmail > returns redirect if authenticated and flashes', async
   t.is(ctx.url, '/verify?redirect_to=test');
 });
 
-test('checkVerifiedEmail > errors if email not verified and api', async t => {
+test('checkVerifiedEmail > errors if email not verified and api', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -200,8 +200,8 @@ test('checkVerifiedEmail > errors if email not verified and api', async t => {
     state: {
       user: {}
     },
-    translate: message => message,
-    throw: err => {
+    translate: (message) => message,
+    throw: (err) => {
       throw err;
     },
     api: true
@@ -212,7 +212,7 @@ test('checkVerifiedEmail > errors if email not verified and api', async t => {
   });
 });
 
-test.serial('ensureOtp > passes through if otp is set', async t => {
+test.serial('ensureOtp > passes through if otp is set', async (t) => {
   const { policies } = t.context;
 
   process.env.AUTH_OTP_ENABLED = true;
@@ -236,7 +236,7 @@ test.serial('ensureOtp > passes through if otp is set', async t => {
   delete process.env.AUTH_OTP_ENABLED;
 });
 
-test.serial('ensureOtp > redirects if not authenticated', async t => {
+test.serial('ensureOtp > redirects if not authenticated', async (t) => {
   const { policies, redirect } = t.context;
 
   process.env.AUTH_OTP_ENABLED = true;
@@ -263,19 +263,19 @@ test.serial('ensureOtp > redirects if not authenticated', async t => {
   delete process.env.AUTH_OTP_ENABLED;
 });
 
-test.serial('ensureOtp > redirects if otp not enabled on user', async t => {
+test.serial('ensureOtp > redirects if otp not enabled on user', async (t) => {
   const { policies, redirect } = t.context;
 
   process.env.AUTH_OTP_ENABLED = true;
 
-  const flash = function(_, message) {
+  const flash = function (_, message) {
     this.flashMessage = message;
   };
 
   const ctx = {
     isAuthenticated: () => true,
     state: {
-      l: message => message,
+      l: (message) => message,
       user: {
         otp_enabled: true
       }
@@ -286,7 +286,7 @@ test.serial('ensureOtp > redirects if otp not enabled on user', async t => {
     req: {
       url: 'test'
     },
-    translate: message => message,
+    translate: (message) => message,
     redirect,
     flash,
     accepts: () => true
@@ -301,7 +301,7 @@ test.serial('ensureOtp > redirects if otp not enabled on user', async t => {
   delete process.env.AUTH_OTP_ENABLED;
 });
 
-test('ensureOtp > passes through if OTP not enabled', async t => {
+test('ensureOtp > passes through if OTP not enabled', async (t) => {
   const { policies } = t.context;
 
   await policies.ensureOtp({}, () => {
@@ -309,7 +309,7 @@ test('ensureOtp > passes through if OTP not enabled', async t => {
   });
 });
 
-test('ensureLoggedIn > passes through if logged in', async t => {
+test('ensureLoggedIn > passes through if logged in', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -323,7 +323,7 @@ test('ensureLoggedIn > passes through if logged in', async t => {
   });
 });
 
-test('ensureLoggedIn > redirects if not authenticated', async t => {
+test('ensureLoggedIn > redirects if not authenticated', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -340,7 +340,7 @@ test('ensureLoggedIn > redirects if not authenticated', async t => {
   t.is(ctx.session.returnTo, 'test');
 });
 
-test('ensureLoggedIn > errors if api', async t => {
+test('ensureLoggedIn > errors if api', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -349,8 +349,8 @@ test('ensureLoggedIn > errors if api', async t => {
     redirect,
     session: {},
     state: {},
-    translate: message => message,
-    throw: err => {
+    translate: (message) => message,
+    throw: (err) => {
       throw err;
     },
     api: true
@@ -361,10 +361,10 @@ test('ensureLoggedIn > errors if api', async t => {
   });
 });
 
-test('ensureLoggedIn > redirects with flashes', async t => {
+test('ensureLoggedIn > redirects with flashes', async (t) => {
   const { policies, redirect } = t.context;
 
-  const flash = function(_, message) {
+  const flash = function (_, message) {
     ctx.flashMessage = message;
   };
 
@@ -376,7 +376,7 @@ test('ensureLoggedIn > redirects with flashes', async t => {
     redirect,
     session: {},
     state: {
-      l: message => message
+      l: (message) => message
     },
     flash,
     accepts: () => true
@@ -389,7 +389,7 @@ test('ensureLoggedIn > redirects with flashes', async t => {
   t.is(ctx.flashMessage, 'Please log in to view the page you requested.');
 });
 
-test('ensureApiToken > passes through if credentials exist', async t => {
+test('ensureApiToken > passes through if credentials exist', async (t) => {
   const { policies } = t.context;
 
   policies.findByTokenFn = () => {
@@ -412,7 +412,7 @@ test('ensureApiToken > passes through if credentials exist', async t => {
   });
 });
 
-test('ensureApiToken > errors if no credentials', async t => {
+test('ensureApiToken > errors if no credentials', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -421,7 +421,7 @@ test('ensureApiToken > errors if no credentials', async t => {
         authorization: undefined
       }
     },
-    throw: err => {
+    throw: (err) => {
       throw err;
     }
   };
@@ -431,7 +431,7 @@ test('ensureApiToken > errors if no credentials', async t => {
   });
 });
 
-test('ensureApiToken > errors if no credentials and translate', async t => {
+test('ensureApiToken > errors if no credentials and translate', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
@@ -440,10 +440,10 @@ test('ensureApiToken > errors if no credentials and translate', async t => {
         authorization: undefined
       }
     },
-    throw: err => {
+    throw: (err) => {
       throw err;
     },
-    translate: message => message
+    translate: (message) => message
   };
 
   await t.throwsAsync(async () => policies.ensureApiToken(ctx, () => {}), {
@@ -451,7 +451,7 @@ test('ensureApiToken > errors if no credentials and translate', async t => {
   });
 });
 
-test('ensureApiToken > errors if no API token', async t => {
+test('ensureApiToken > errors if no API token', async (t) => {
   const { policies } = t.context;
 
   policies.findByTokenFn = () => {
@@ -464,7 +464,7 @@ test('ensureApiToken > errors if no API token', async t => {
         authorization: 'basic Zm9vOmJhcg=='
       }
     },
-    throw: err => {
+    throw: (err) => {
       throw err;
     }
   };
@@ -474,7 +474,7 @@ test('ensureApiToken > errors if no API token', async t => {
   });
 });
 
-test('ensureApiToken > errors if no API token and translate', async t => {
+test('ensureApiToken > errors if no API token and translate', async (t) => {
   const { policies } = t.context;
 
   policies.findByTokenFn = () => {
@@ -487,10 +487,10 @@ test('ensureApiToken > errors if no API token and translate', async t => {
         authorization: 'basic Zm9vOmJhcg=='
       }
     },
-    throw: err => {
+    throw: (err) => {
       throw err;
     },
-    translate: message => message
+    translate: (message) => message
   };
 
   await t.throwsAsync(async () => policies.ensureApiToken(ctx, () => {}), {
@@ -498,7 +498,7 @@ test('ensureApiToken > errors if no API token and translate', async t => {
   });
 });
 
-test('ensureLoggedOut > passes through if logged out', async t => {
+test('ensureLoggedOut > passes through if logged out', async (t) => {
   const { policies } = t.context;
 
   const ctx = { isAuthenticated: () => false };
@@ -508,7 +508,7 @@ test('ensureLoggedOut > passes through if logged out', async t => {
   });
 });
 
-test('ensureLoggedOut > redirects if logged in', async t => {
+test('ensureLoggedOut > redirects if logged in', async (t) => {
   const { policies, redirect } = t.context;
 
   const ctx = {
@@ -524,10 +524,10 @@ test('ensureLoggedOut > redirects if logged in', async t => {
   t.is(ctx.session.returnTo, 'test');
 });
 
-test('ensureLoggedOut > redirects if logged in and flashes', async t => {
+test('ensureLoggedOut > redirects if logged in and flashes', async (t) => {
   const { policies, redirect } = t.context;
 
-  const flash = function(_, message) {
+  const flash = function (_, message) {
     this.flashMessage = message;
   };
 
@@ -549,14 +549,14 @@ test('ensureLoggedOut > redirects if logged in and flashes', async t => {
   t.is(ctx.flashMessage, 'Please log out to view the page you requested.');
 });
 
-test('ensureLoggedOut > errors if api', async t => {
+test('ensureLoggedOut > errors if api', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
     isAuthenticated: () => true,
-    translate: message => message,
+    translate: (message) => message,
     api: true,
-    throw: err => {
+    throw: (err) => {
       throw err;
     },
     session: {},
@@ -568,7 +568,7 @@ test('ensureLoggedOut > errors if api', async t => {
   });
 });
 
-test('ensureAdmin > passes through if authenticated and admin', async t => {
+test('ensureAdmin > passes through if authenticated and admin', async (t) => {
   const { policies } = t.context;
 
   policies.checkVerifiedEmail = (_, next) => next();
@@ -587,12 +587,12 @@ test('ensureAdmin > passes through if authenticated and admin', async t => {
   });
 });
 
-test('ensureAdmin > errors if authenticate and not admin', async t => {
+test('ensureAdmin > errors if authenticate and not admin', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
     isAuthenticated: () => false,
-    throw: err => {
+    throw: (err) => {
       throw err;
     }
   };
@@ -602,15 +602,15 @@ test('ensureAdmin > errors if authenticate and not admin', async t => {
   });
 });
 
-test('ensureAdmin > errors if authenticate and not admin and translate', async t => {
+test('ensureAdmin > errors if authenticate and not admin and translate', async (t) => {
   const { policies } = t.context;
 
   const ctx = {
     isAuthenticated: () => false,
-    throw: err => {
+    throw: (err) => {
       throw err;
     },
-    translate: message => message
+    translate: (message) => message
   };
 
   await t.throwsAsync(async () => policies.ensureAdmin(ctx, () => {}), {

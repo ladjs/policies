@@ -6,6 +6,10 @@ function hasFlashAndAcceptsHTML(ctx) {
   return typeof ctx.flash === 'function' && ctx.accepts('html');
 }
 
+function hasTranslationHelper(ctx) {
+  return typeof ctx.request === 'object' && typeof ctx.request.t === 'function';
+}
+
 class Policies {
   constructor(config, findByTokenFn) {
     this.config = {
@@ -49,7 +53,21 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
+      if (hasFlashAndAcceptsHTML(ctx)) {
+        if (hasTranslationHelper(ctx)) {
+          ctx.flash('custom', {
+            title: ctx.request.t('Warning'),
+            text: message,
+            type: 'warning',
+            toast: true,
+            showConfirmButton: false,
+            timer: 3000,
+            position: 'top'
+          });
+        } else {
+          ctx.flash('warning', message);
+        }
+      }
 
       ctx.redirect(
         typeof ctx.state.l === 'function'
@@ -76,11 +94,25 @@ class Policies {
 
     if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-    if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
+    if (hasFlashAndAcceptsHTML(ctx)) {
+      if (hasTranslationHelper(ctx)) {
+        ctx.flash('custom', {
+          title: ctx.request.t('Warning'),
+          text: message,
+          type: 'warning',
+          toast: true,
+          showConfirmButton: false,
+          timer: 3000,
+          position: 'top'
+        });
+      } else {
+        ctx.flash('warning', message);
+      }
+    }
 
-    const redirect = `${
-      this.config.verifyRoute
-    }?redirect_to=${ctx.originalUrl || ctx.req.url}`;
+    const redirect = `${this.config.verifyRoute}?redirect_to=${
+      ctx.originalUrl || ctx.req.url
+    }`;
     ctx.redirect(
       typeof ctx.state.l === 'function' ? ctx.state.l(redirect) : redirect
     );
@@ -124,7 +156,21 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
+      if (hasFlashAndAcceptsHTML(ctx)) {
+        if (hasTranslationHelper(ctx)) {
+          ctx.flash('custom', {
+            title: ctx.request.t('Warning'),
+            text: message,
+            type: 'warning',
+            toast: true,
+            showConfirmButton: false,
+            timer: 3000,
+            position: 'top'
+          });
+        } else {
+          ctx.flash('warning', message);
+        }
+      }
 
       ctx.redirect(
         typeof ctx.state.l === 'function'
@@ -182,7 +228,21 @@ class Policies {
 
       if (ctx.api) return ctx.throw(Boom.unauthorized(message));
 
-      if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
+      if (hasFlashAndAcceptsHTML(ctx)) {
+        if (hasTranslationHelper(ctx)) {
+          ctx.flash('custom', {
+            title: ctx.request.t('Warning'),
+            text: message,
+            type: 'warning',
+            toast: true,
+            showConfirmButton: false,
+            timer: 3000,
+            position: 'top'
+          });
+        } else {
+          ctx.flash('warning', message);
+        }
+      }
 
       ctx.redirect('back');
       return;
