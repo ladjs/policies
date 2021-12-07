@@ -1,3 +1,5 @@
+const process = require('process');
+
 const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
 const { verify } = require('hcaptcha');
@@ -25,6 +27,10 @@ class Policies {
       userFields: {
         hasVerifiedEmail: 'has_verified_email'
       },
+      hcaptchaEnabled: false,
+      hcaptchaSecretKey: null,
+      hcaptchaSiteKey: null,
+      getIP: (ctx) => ctx.ip,
       ...config
     };
 
@@ -277,9 +283,14 @@ class Policies {
         )
       );
 
-    const { hcaptchaSecretKey } = this.config;
+    const { hcaptchaSecretKey, hcaptchaSiteKey, getIP } = this.config;
     const token = ctx.request.body['h-captcha-response'];
-    const verification = await verify(hcaptchaSecretKey, token);
+    const verification = await verify(
+      hcaptchaSecretKey,
+      token,
+      typeof getIP === 'function' ? getIP(ctx) : null,
+      hcaptchaSiteKey
+    );
     if (verification.success !== true) {
       // https://docs.hcaptcha.com/#server
       ctx.logger.error(`Captcha service error: ${verification['error-codes']}`);
