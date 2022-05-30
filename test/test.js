@@ -113,7 +113,7 @@ test('checkVerifiedEmail > errors when not authenticated and api', async (t) => 
     originalUrl: 'test',
     redirect,
     api: true,
-    throw: (err) => {
+    throw(err) {
       throw err;
     }
   };
@@ -203,7 +203,7 @@ test('checkVerifiedEmail > errors if email not verified and api', async (t) => {
       user: {}
     },
     translate: (message) => message,
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     api: true
@@ -352,7 +352,7 @@ test('ensureLoggedIn > errors if api', async (t) => {
     session: {},
     state: {},
     translate: (message) => message,
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     api: true
@@ -406,7 +406,7 @@ test('ensureApiToken > passes through if credentials exist', async (t) => {
         authorization: 'basic Zm9vOmJhcg=='
       }
     },
-    login: () => {}
+    login() {}
   };
 
   await policies.ensureApiToken(ctx, () => {
@@ -423,7 +423,7 @@ test('ensureApiToken > errors if no credentials', async (t) => {
         authorization: undefined
       }
     },
-    throw: (err) => {
+    throw(err) {
       throw err;
     }
   };
@@ -442,7 +442,7 @@ test('ensureApiToken > errors if no credentials and translate', async (t) => {
         authorization: undefined
       }
     },
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     translate: (message) => message
@@ -466,7 +466,7 @@ test('ensureApiToken > errors if no API token', async (t) => {
         authorization: 'basic Zm9vOmJhcg=='
       }
     },
-    throw: (err) => {
+    throw(err) {
       throw err;
     }
   };
@@ -489,7 +489,7 @@ test('ensureApiToken > errors if no API token and translate', async (t) => {
         authorization: 'basic Zm9vOmJhcg=='
       }
     },
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     translate: (message) => message
@@ -558,7 +558,7 @@ test('ensureLoggedOut > errors if api', async (t) => {
     isAuthenticated: () => true,
     translate: (message) => message,
     api: true,
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     session: {},
@@ -594,7 +594,7 @@ test('ensureAdmin > errors if authenticate and not admin', async (t) => {
 
   const ctx = {
     isAuthenticated: () => false,
-    throw: (err) => {
+    throw(err) {
       throw err;
     }
   };
@@ -609,7 +609,7 @@ test('ensureAdmin > errors if authenticate and not admin and translate', async (
 
   const ctx = {
     isAuthenticated: () => false,
-    throw: (err) => {
+    throw(err) {
       throw err;
     },
     translate: (message) => message

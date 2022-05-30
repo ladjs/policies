@@ -3,6 +3,7 @@ const process = require('process');
 const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
 const { verify } = require('hcaptcha');
+const { boolean } = require('boolean');
 
 function hasFlashAndAcceptsHTML(ctx) {
   return typeof ctx.flash === 'function' && ctx.accepts('html');
@@ -125,7 +126,7 @@ class Policies {
   }
 
   async ensureOtp(ctx, next) {
-    if (!process.env.AUTH_OTP_ENABLED) return next();
+    if (!boolean(process.env.AUTH_OTP_ENABLED)) return next();
 
     if (
       !ctx.isAuthenticated() ||
