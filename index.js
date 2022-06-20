@@ -1,9 +1,10 @@
 const process = require('process');
 
-const auth = require('basic-auth');
 const Boom = require('@hapi/boom');
-const { verify } = require('hcaptcha');
+const auth = require('basic-auth');
+const isSANB = require('is-string-and-not-blank');
 const { boolean } = require('boolean');
+const { verify } = require('hcaptcha');
 
 function hasFlashAndAcceptsHTML(ctx) {
   return typeof ctx.flash === 'function' && ctx.accepts('html');
@@ -275,7 +276,7 @@ class Policies {
     if (this.config.hcaptchaEnabled === false || ctx.isAuthenticated())
       return next();
 
-    if (!ctx.request.body['h-captcha-response'])
+    if (!isSANB(ctx.request.body['h-captcha-response']))
       ctx.throw(
         Boom.badRequest(
           ctx.translate
@@ -285,10 +286,9 @@ class Policies {
       );
 
     const { hcaptchaSecretKey, hcaptchaSiteKey, getIP } = this.config;
-    const token = ctx.request.body['h-captcha-response'];
     const verification = await verify(
       hcaptchaSecretKey,
-      token,
+      ctx.request.body['h-captcha-response'],
       typeof getIP === 'function' ? getIP(ctx) : null,
       hcaptchaSiteKey
     );
