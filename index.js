@@ -273,38 +273,51 @@ class Policies {
   }
 
   async ensureCaptcha(ctx, next) {
-    if (this.config.hcaptchaEnabled === false || ctx.isAuthenticated())
-      return next();
+    if (this.config.hcaptchaEnabled === false) return next();
 
-    if (!isSANB(ctx.request.body['h-captcha-response']))
-      ctx.throw(
-        Boom.badRequest(
-          ctx.translate
-            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
-            : 'Captcha not verified.'
-        )
+    if (!isSANB(ctx.request.body['h-captcha-response'])) {
+      const err = Boom.badRequest(
+        ctx.translate
+          ? ctx.translate('CAPTCHA_NOT_VERIFIED')
+          : 'Captcha not verified.'
       );
-
-    const { hcaptchaSecretKey, hcaptchaSiteKey, getIP } = this.config;
-    const verification = await verify(
-      hcaptchaSecretKey,
-      ctx.request.body['h-captcha-response'],
-      typeof getIP === 'function' ? getIP(ctx) : null,
-      hcaptchaSiteKey
-    );
-    if (verification.success !== true) {
-      // https://docs.hcaptcha.com/#server
-      ctx.logger.error(`Captcha service error: ${verification['error-codes']}`);
-      ctx.throw(
-        Boom.badRequest(
-          ctx.translate
-            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
-            : 'Captcha not verified.'
-        )
-      );
+      err.is_captcha = true;
+      ctx.throw(err);
+      return;
     }
 
-    return next();
+    try {
+      // https://docs.hcaptcha.com/#server
+      const { hcaptchaSecretKey, hcaptchaSiteKey, getIP } = this.config;
+      const verification = await verify(
+        hcaptchaSecretKey,
+        ctx.request.body['h-captcha-response'],
+        typeof getIP === 'function' ? getIP(ctx) : null,
+        hcaptchaSiteKey
+      );
+
+      ctx.logger.debug('hCaptcha response', { verification });
+
+      if (verification.success !== true) {
+        // https://docs.hcaptcha.com/#siteverify-error-codes-table
+        ctx.logger.warn('hCaptcha not successful', { verification });
+        const err = Boom.badRequest(
+          ctx.translate
+            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
+            : 'Captcha not verified.'
+        );
+        err.is_captcha = true;
+        ctx.throw(err);
+        return;
+      }
+
+      return next();
+    } catch (err) {
+      // this indicates an HTTP error or error while parsing JSON response
+      // (e.g. in case the hcaptcha service goes down)
+      ctx.logger.fatal(err);
+      return next();
+    }
   }
 }
 
