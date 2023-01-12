@@ -64,6 +64,9 @@
     "type": "git",
     "url": "https://github.com/ladjs/policies"
   },
+  "resolutions": {
+    "eslint-plugin-import": "2.26.0"
+  },
   "scripts": {
     "lint": "xo --fix && remark . -qfo && fixpack",
     "precommit": "lint-staged && npm test",
@@ -71,8 +74,5 @@
     "pretest": "npm run lint",
     "test": "npm run test-coverage",
     "test-coverage": "cross-env NODE_ENV=test nyc ava"
-  },
-  "resolutions": {
-    "eslint-plugin-import": "2.26.0"
   }
 }
