@@ -1,4 +1,4 @@
-const process = require('process');
+const process = require('node:process');
 
 const test = require('ava');
 
