@@ -22,19 +22,19 @@
     "is-string-and-not-blank": "^0.0.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "ava": "^4.3.0",
+    "@commitlint/cli": "^17.4.2",
+    "@commitlint/config-conventional": "^17.4.2",
+    "ava": "^5.1.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.18.0",
+    "eslint": "^8.31.0",
     "eslint-config-xo-lass": "^2.0.1",
     "fixpack": "^4.0.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.0",
     "nyc": "^15.1.0",
     "remark-cli": "^11.0.0",
     "remark-preset-github": "^4.0.4",
-    "xo": "^0.50.0"
+    "xo": "^0.53.1"
   },
   "engines": {
     "node": ">=14"
