@@ -69,7 +69,6 @@
   },
   "scripts": {
     "lint": "xo --fix && remark . -qfo && fixpack",
-    "precommit": "lint-staged && npm test",
     "prepare": "husky install",
     "pretest": "npm run lint",
     "test": "npm run test-coverage",
