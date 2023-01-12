@@ -77,11 +77,14 @@ class Policies {
         }
       }
 
-      ctx.redirect(
+      const redirectTo =
         typeof ctx.state.l === 'function'
           ? ctx.state.l(this.config.loginRoute)
-          : this.config.loginRoute
-      );
+          : this.config.loginRoute;
+
+      if (ctx.accepts('html')) ctx.redirect(redirectTo);
+      else ctx.body = { message, redirectTo };
+
       return;
     }
 
@@ -121,9 +124,12 @@ class Policies {
     const redirect = `${this.config.verifyRoute}?redirect_to=${
       ctx.originalUrl || ctx.req.url
     }`;
-    ctx.redirect(
-      typeof ctx.state.l === 'function' ? ctx.state.l(redirect) : redirect
-    );
+
+    const redirectTo =
+      typeof ctx.state.l === 'function' ? ctx.state.l(redirect) : redirect;
+
+    if (ctx.accepts('html')) ctx.redirect(redirectTo);
+    else ctx.body = { message, redirectTo };
   }
 
   async ensureOtp(ctx, next) {
@@ -135,15 +141,20 @@ class Policies {
         !ctx.session.otp)
     ) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
-      // const message = ctx.translate
-      //   ? ctx.translate('TWO_FACTOR_REQUIRED')
-      //   : 'Please log in with two-factor authentication to view the page you requested.';
+      const message = ctx.translate
+        ? ctx.translate('TWO_FACTOR_REQUIRED')
+        : 'Please log in with two-factor authentication to continue.';
+
       // if (hasFlashAndAcceptsHTML(ctx)) ctx.flash('warning', message);
-      ctx.redirect(
+
+      const redirectTo =
         typeof ctx.state.l === 'function'
           ? ctx.state.l(this.config.loginOtpRoute)
-          : this.config.loginOtpRoute
-      );
+          : this.config.loginOtpRoute;
+
+      if (ctx.accepts('html')) ctx.redirect(redirectTo);
+      else ctx.body = { message, redirectTo };
+
       return;
     }
 
@@ -180,11 +191,14 @@ class Policies {
         }
       }
 
-      ctx.redirect(
+      const redirectTo =
         typeof ctx.state.l === 'function'
           ? ctx.state.l(this.config.loginRoute)
-          : this.config.loginRoute
-      );
+          : this.config.loginRoute;
+
+      if (ctx.accepts('html')) ctx.redirect(redirectTo);
+      else ctx.body = { message, redirectTo };
+
       return;
     }
 
@@ -252,7 +266,14 @@ class Policies {
         }
       }
 
-      ctx.redirect('back');
+      const redirectTo =
+        ctx.get('Referrer') || typeof ctx.state.l === 'function'
+          ? ctx.state.l('/')
+          : '/';
+
+      if (ctx.accepts('html')) ctx.redirect(redirectTo);
+      else ctx.body = { message, redirectTo };
+
       return;
     }
 
