@@ -1,4 +1,4 @@
-const process = require('node:process');
+const process = require('process');
 
 const Boom = require('@hapi/boom');
 const auth = require('basic-auth');
