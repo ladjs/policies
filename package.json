@@ -70,7 +70,6 @@
   "scripts": {
     "lint": "xo --fix && remark . -qfo && fixpack",
     "prepare": "husky install",
-    "pretest": "npm run lint",
     "test": "npm run test-coverage",
     "test-coverage": "cross-env NODE_ENV=test nyc ava"
   }
