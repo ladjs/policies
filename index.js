@@ -296,6 +296,13 @@ class Policies {
   async ensureCaptcha(ctx, next) {
     if (this.config.hcaptchaEnabled === false) return next();
 
+    if (
+      ctx.isAuthenticated() &&
+      ctx.state.user &&
+      ctx.state.user.group === 'admin'
+    )
+      return next();
+
     if (!isSANB(ctx.request.body['h-captcha-response'])) {
       const err = Boom.badRequest(
         ctx.translate
