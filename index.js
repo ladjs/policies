@@ -223,7 +223,7 @@ class Policies {
         )
       );
 
-    const user = await this.findByTokenFn(credentials.name);
+    const user = await this.findByTokenFn(credentials.name, ctx);
 
     if (!user)
       return ctx.throw(
