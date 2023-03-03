@@ -18,8 +18,8 @@
     "@hapi/boom": "^10.0.0",
     "basic-auth": "^2.0.1",
     "boolean": "^3.2.0",
-    "hcaptcha": "^0.1.1",
-    "is-string-and-not-blank": "^0.0.2"
+    "is-string-and-not-blank": "^0.0.2",
+    "undici": "^5.20.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",

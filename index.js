@@ -4,7 +4,7 @@ const Boom = require('@hapi/boom');
 const auth = require('basic-auth');
 const isSANB = require('is-string-and-not-blank');
 const { boolean } = require('boolean');
-const { verify } = require('hcaptcha');
+const { request } = require('undici');
 
 function hasFlashAndAcceptsHTML(ctx) {
   return typeof ctx.flash === 'function' && ctx.accepts('html');
@@ -29,10 +29,8 @@ class Policies {
       userFields: {
         hasVerifiedEmail: 'has_verified_email'
       },
-      hcaptchaEnabled: false,
-      hcaptchaSecretKey: null,
-      hcaptchaSiteKey: null,
-      getIP: (ctx) => ctx.ip,
+      turnstileEnabled: false,
+      turnstileSecretKey: null,
       ...config
     };
 
@@ -49,7 +47,7 @@ class Policies {
     this.ensureLoggedOut = this.ensureLoggedOut.bind(this);
     this.ensureAdmin = this.ensureAdmin.bind(this);
     this.ensureOtp = this.ensureOtp.bind(this);
-    this.ensureCaptcha = this.ensureCaptcha.bind(this);
+    this.ensureTurnstile = this.ensureTurnstile.bind(this);
   }
 
   async checkVerifiedEmail(ctx, next) {
@@ -293,8 +291,8 @@ class Policies {
     return this.checkVerifiedEmail(ctx, next);
   }
 
-  async ensureCaptcha(ctx, next) {
-    if (this.config.hcaptchaEnabled === false) return next();
+  async ensureTurnstile(ctx, next) {
+    if (!boolean(this.config.turnstileEnabled)) return next();
 
     if (
       ctx.isAuthenticated() &&
@@ -303,38 +301,58 @@ class Policies {
     )
       return next();
 
-    if (!isSANB(ctx.request.body['h-captcha-response'])) {
+    if (!isSANB(ctx.request.body['cf-turnstile-response'])) {
       const err = Boom.badRequest(
         ctx.translate
-          ? ctx.translate('CAPTCHA_NOT_VERIFIED')
-          : 'Captcha not verified.'
+          ? ctx.translate('TURNSTILE_NOT_VERIFIED')
+          : 'Turnstile not verified.'
       );
-      err.is_captcha = true;
+      err.is_turnstile = true;
       ctx.throw(err);
       return;
     }
 
     try {
-      // https://docs.hcaptcha.com/#server
-      const { hcaptchaSecretKey, hcaptchaSiteKey, getIP } = this.config;
-      const verification = await verify(
-        hcaptchaSecretKey,
-        ctx.request.body['h-captcha-response'],
-        typeof getIP === 'function' ? getIP(ctx) : null,
-        hcaptchaSiteKey
+      // <https://github.com/cloudflare/turnstile-demo-workers/blob/main/src/index.mjs>
+      const res = await request(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            secret: this.config.turnstileSecretKey,
+            response: ctx.request.body['cf-turnstile-response'],
+            remoteip: ctx.request.headers['CF-Connecting-IP'] || ctx.ip
+          })
+        }
       );
 
-      ctx.logger.debug('hCaptcha response', { verification });
+      const body = await res.json();
 
-      if (verification.success !== true) {
-        // https://docs.hcaptcha.com/#siteverify-error-codes-table
-        ctx.logger.warn('hCaptcha not successful', { verification });
+      ctx.logger.debug('turnstile response', {
+        headers: res.headers,
+        statusCode: res.statusCode,
+        body
+      });
+
+      if (body.success !== true) {
+        // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/#error-codes
+        // body['error-codes'] = [ ... ]
+        ctx.logger.warn('turnstile error', {
+          headers: res.headers,
+          statusCode: res.statusCode,
+          body
+        });
+
+        // https://docs.turnstile.com/#siteverify-error-codes-table
         const err = Boom.badRequest(
           ctx.translate
-            ? ctx.translate('CAPTCHA_NOT_VERIFIED')
-            : 'Captcha not verified.'
+            ? ctx.translate('TURNSTILE_NOT_VERIFIED')
+            : 'Turnstile not verified.'
         );
-        err.is_captcha = true;
+        err.is_turnstile = true;
         ctx.throw(err);
         return;
       }
@@ -342,7 +360,7 @@ class Policies {
       return next();
     } catch (err) {
       // this indicates an HTTP error or error while parsing JSON response
-      // (e.g. in case the hcaptcha service goes down)
+      // (e.g. in case the turnstile service goes down)
       ctx.logger.fatal(err);
       return next();
     }
