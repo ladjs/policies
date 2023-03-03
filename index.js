@@ -329,7 +329,7 @@ class Policies {
         }
       );
 
-      const body = await res.json();
+      const body = await res.body.json();
 
       ctx.logger.debug('turnstile response', {
         headers: res.headers,
