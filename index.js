@@ -17,6 +17,7 @@ function hasTranslationHelper(ctx) {
 class Policies {
   constructor(config, findByTokenFn) {
     this.config = {
+      requireVerificationPostLogin: false,
       verifyRoute: '/verify',
       loginRoute: '/login',
       loginOtpRoute: '/otp/login',
@@ -201,7 +202,10 @@ class Policies {
     }
 
     // check if the user has a verified email
-    return this.checkVerifiedEmail(ctx, next);
+    if (this.config.requireVerificationPostLogin)
+      return this.checkVerifiedEmail(ctx, next);
+
+    return next();
   }
 
   async ensureApiToken(ctx, next) {
