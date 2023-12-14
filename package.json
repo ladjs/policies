@@ -15,26 +15,26 @@
     "shadowgate15 (https://github.com/shadowgate15)"
   ],
   "dependencies": {
-    "@hapi/boom": "^10.0.0",
+    "@hapi/boom": "^10.0.1",
     "basic-auth": "^2.0.1",
     "boolean": "^3.2.0",
     "is-string-and-not-blank": "^0.0.2"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.4.2",
-    "@commitlint/config-conventional": "^17.4.2",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "ava": "^5.1.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.31.0",
+    "eslint": "^8.55.0",
     "eslint-config-xo-lass": "^2.0.1",
     "fixpack": "^4.0.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.1.0",
+    "lint-staged": "^15.2.0",
     "nyc": "^15.1.0",
-    "remark-cli": "^11.0.0",
+    "remark-cli": "11",
     "remark-preset-github": "^4.0.4",
-    "undici": "^5.20.0",
-    "xo": "^0.53.1"
+    "undici": "^6.0.1",
+    "xo": "^0.56.0"
   },
   "engines": {
     "node": ">=14"

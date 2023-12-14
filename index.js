@@ -1,5 +1,4 @@
 const process = require('node:process');
-
 const Boom = require('@hapi/boom');
 const auth = require('basic-auth');
 const isSANB = require('is-string-and-not-blank');
@@ -212,7 +211,7 @@ class Policies {
     const credentials = auth(ctx.req);
 
     if (
-      typeof credentials === 'undefined' ||
+      credentials === undefined ||
       typeof credentials.name !== 'string' ||
       !credentials.name
     )

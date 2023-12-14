@@ -1,7 +1,5 @@
 const process = require('node:process');
-
 const test = require('ava');
-
 const Policies = require('..');
 
 test.beforeEach((t) => {
