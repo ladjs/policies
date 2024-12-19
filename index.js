@@ -189,10 +189,13 @@ class Policies {
         }
       }
 
-      const redirectTo =
+      let redirectTo =
         typeof ctx.state.l === 'function'
           ? ctx.state.l(this.config.loginRoute)
           : this.config.loginRoute;
+
+      if (ctx.url && ctx.url !== '/')
+        redirectTo += `?return_to=${encodeURIComponent(ctx.url)}`;
 
       if (ctx.accepts('html')) ctx.redirect(redirectTo);
       else ctx.body = { message, redirectTo };
