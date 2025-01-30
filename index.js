@@ -50,6 +50,7 @@ class Policies {
     this.ensureTurnstile = this.ensureTurnstile.bind(this);
   }
 
+  // eslint-disable-next-line complexity
   async checkVerifiedEmail(ctx, next) {
     if (!ctx.isAuthenticated()) {
       ctx.session.returnTo = ctx.originalUrl || ctx.req.url;
@@ -86,16 +87,24 @@ class Policies {
       return;
     }
 
-    if (!this.config.userFields.hasVerifiedEmail) return next();
+    if (!this.config.userFields.hasVerifiedEmail) {
+      if (next) return next();
+      return;
+    }
 
-    if (ctx.state.user[this.config.userFields.hasVerifiedEmail]) return next();
+    if (ctx.state.user[this.config.userFields.hasVerifiedEmail]) {
+      if (next) return next();
+      return;
+    }
 
     if (
       typeof ctx.pathWithoutLocale === 'string'
         ? ctx.pathWithoutLocale === this.config.verifyRoute
         : ctx.path === this.config.verifyRoute
-    )
-      return next();
+    ) {
+      if (next) return next();
+      return;
+    }
 
     const message = ctx.translate
       ? ctx.translate('EMAIL_VERIFICATION_REQUIRED')
