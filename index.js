@@ -279,10 +279,10 @@ class Policies {
         }
       }
 
+      const referrer = ctx.get('Referrer');
       const redirectTo =
-        ctx.get('Referrer') || typeof ctx.state.l === 'function'
-          ? ctx.state.l('/')
-          : '/';
+        referrer ||
+        (typeof ctx.state.l === 'function' ? ctx.state.l('/') : '/');
 
       if (ctx.accepts('html')) ctx.redirect(redirectTo);
       else ctx.body = { message, redirectTo };
@@ -327,58 +327,51 @@ class Policies {
       return;
     }
 
-    try {
-      // <https://github.com/cloudflare/turnstile-demo-workers/blob/main/src/index.mjs>
-      const res = await request(
-        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            secret: this.config.turnstileSecretKey,
-            response: ctx.request.body['cf-turnstile-response'],
-            remoteip: ctx.request.headers['CF-Connecting-IP'] || ctx.ip
-          })
-        }
-      );
+    // <https://github.com/cloudflare/turnstile-demo-workers/blob/main/src/index.mjs>
+    const res = await request(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          secret: this.config.turnstileSecretKey,
+          response: ctx.request.body['cf-turnstile-response'],
+          remoteip: ctx.request.headers['cf-connecting-ip'] || ctx.ip
+        }),
+        bodyTimeout: 10_000,
+        headersTimeout: 10_000
+      }
+    );
 
-      const body = await res.body.json();
+    const body = await res.body.json();
 
-      ctx.logger.debug('turnstile response', {
-        headers: res.headers,
+    ctx.logger.debug('turnstile response', {
+      statusCode: res.statusCode,
+      body
+    });
+
+    if (body.success !== true) {
+      // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/#error-codes
+      // body['error-codes'] = [ ... ]
+      ctx.logger.warn('turnstile verification failed', {
         statusCode: res.statusCode,
         body
       });
 
-      if (body.success !== true) {
-        // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/#error-codes
-        // body['error-codes'] = [ ... ]
-        ctx.logger.warn('turnstile error', {
-          headers: res.headers,
-          statusCode: res.statusCode,
-          body
-        });
-
-        // https://docs.turnstile.com/#siteverify-error-codes-table
-        const err = Boom.badRequest(
-          ctx.translate
-            ? ctx.translate('TURNSTILE_NOT_VERIFIED')
-            : 'Turnstile not verified.'
-        );
-        err.is_turnstile = true;
-        ctx.throw(err);
-        return;
-      }
-
-      return next();
-    } catch (err) {
-      // this indicates an HTTP error or error while parsing JSON response
-      // (e.g. in case the turnstile service goes down)
-      ctx.logger.fatal(err);
-      return next();
+      // https://docs.turnstile.com/#siteverify-error-codes-table
+      const err = Boom.badRequest(
+        ctx.translate
+          ? ctx.translate('TURNSTILE_NOT_VERIFIED')
+          : 'Turnstile not verified.'
+      );
+      err.is_turnstile = true;
+      ctx.throw(err);
+      return;
     }
+
+    return next();
   }
 }
 
